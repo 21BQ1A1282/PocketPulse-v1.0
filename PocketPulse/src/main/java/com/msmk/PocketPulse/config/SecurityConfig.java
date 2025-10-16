@@ -46,7 +46,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://pocketpulse-finance.netlify.app"));
+        configuration.setAllowedOrigins(List.of("https://pocketpulse-finance.netlify.app","http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization","Content-Type","Accept"));
         configuration.setAllowCredentials(true);

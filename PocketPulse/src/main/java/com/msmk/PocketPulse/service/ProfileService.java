@@ -37,17 +37,24 @@ public class ProfileService {
     @Value("${app.activation.url}")
     private String activationURL;
 
-
-    public ProfileDTO registerProfile(ProfileDTO profileDTO){
+    public ProfileDTO registerProfile(ProfileDTO profileDTO) {
         ProfileEntity newProfile = toEntity(profileDTO);
-        newProfile.setActivationToken(UUID.randomUUID().toString());
+        newProfile.setIsActive(true); // Auto-activate account
         newProfile = profileRepository.save(newProfile);
-        String activationLink = activationURL+"/api/v1.0/activate?token="+ newProfile.getActivationToken();
-        String subject  = "Activate your Pocket Pluse account";
-        String body = "Click on the following link to activate your acccount: "+activationLink;
-        emailService.sendEmail(newProfile.getEmail(), subject, body);
         return toDTO(newProfile);
     }
+
+
+//    public ProfileDTO registerProfile(ProfileDTO profileDTO){
+//        ProfileEntity newProfile = toEntity(profileDTO);
+//        newProfile.setActivationToken(UUID.randomUUID().toString());
+//        newProfile = profileRepository.save(newProfile);
+//        String activationLink = activationURL+"/api/v1.0/activate?token="+ newProfile.getActivationToken();
+//        String subject  = "Activate your Pocket Pluse account";
+//        String body = "Click on the following link to activate your acccount: "+activationLink;
+//        emailService.sendEmail(newProfile.getEmail(), subject, body);
+//        return toDTO(newProfile);
+//    }
 
     public ProfileEntity toEntity(ProfileDTO profileDTO) {
         return ProfileEntity.builder()
@@ -82,11 +89,16 @@ public class ProfileService {
                 .orElse(false);
     }
 
-    public boolean isAccountActive(String email){
-        return profileRepository.findByEmail(email)
-                .map(ProfileEntity::getIsActive)
-                .orElse(false);
+    // Remove email activation methods
+    public boolean isAccountActive(String email) {
+        return true; // All accounts are active
     }
+
+//    public boolean isAccountActive(String email){
+//        return profileRepository.findByEmail(email)
+//                .map(ProfileEntity::getIsActive)
+//                .orElse(false);
+//    }
 
     public ProfileEntity getCurrentProfile(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -116,15 +128,34 @@ public class ProfileService {
                     "user", getPublicProfile(authDTO.getEmail())
             );
         } catch (BadCredentialsException e) {
-            // This is thrown when username/password is wrong
             throw new RuntimeException("Invalid email or password");
-        } catch (DisabledException e) {
-            // This is thrown when user is not active
-            throw new RuntimeException("Account is not active");
         } catch (Exception e) {
-            // Log the actual exception for debugging
-            e.printStackTrace();
             throw new RuntimeException("Authentication failed: " + e.getMessage());
         }
     }
+
+//    public Map<String, Object> authenticatedAndGenerateToken(AuthDTO authDTO) {
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(authDTO.getEmail(), authDTO.getPassword())
+//            );
+//
+//            String token = jwtUtil.generateToken(authDTO.getEmail());
+//            return Map.of(
+//                    "token", token,
+//                    "user", getPublicProfile(authDTO.getEmail())
+//            );
+//        } catch (BadCredentialsException e) {
+//            // This is thrown when username/password is wrong
+//            throw new RuntimeException("Invalid email or password");
+//        } catch (DisabledException e) {
+//            // This is thrown when user is not active
+//            throw new RuntimeException("Account is not active");
+//        } catch (Exception e) {
+//            // Log the actual exception for debugging
+//            e.printStackTrace();
+//            throw new RuntimeException("Authentication failed: " + e.getMessage());
+//        }
+//    }
+
 }
